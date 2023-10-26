@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-prod
+spec:
+  replicas: 1
+  # strategy:
+  #   type: RollingUpdate
+  #   rollingUpdate:
+  #     maxSurge: 1
+  #     maxUnavailable: 0
+  selector:
+    matchLabels:
+      name: ml-prod
+  template:
+    metadata:
+      labels:
+        name: ml-prod
+    spec:
+      containers:
+      - name: ml-prod-api
+        image: us-ashburn-1.ocir.io/idapel7w8ikn/machine-learning:test2-16-api
+      - name: ml-prod-rasa
+        image: us-ashburn-1.ocir.io/idapel7w8ikn/machine-learning:test2-16-rasa
+      - name: ml-prod-rasa
+        image: us-ashburn-1.ocir.io/idapel7w8ikn/machine-learning:test2-16-act
+        ports:
+          - containerPort: 8080
+        resources:
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 500m
+      #   volumeMounts:
+      #     - name: config-oci
+      #       mountPath: /home/app/config
+      #       subPath: config
+      #   imagePullPolicy: "Always"
+      # volumes:
+      # - name: config-oci
+      #   configMap:
+      #     name: backend-conf
+      imagePullSecrets:
+      - name: ocisecret

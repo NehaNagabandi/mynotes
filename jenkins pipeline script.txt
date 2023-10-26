@@ -1,0 +1,87 @@
+def projectName = "swish-frontend"
+def gitUrl = "https://git-codecommit.us-east-2.amazonaws.com/v1/repos/Frontend-swish"
+def credentialID = "neha-codecommit"
+def snsTopicArn = "arn:aws:sns:us-east-2:310474177525:fe-dev-notification"
+def awsCredentialsID = "aws-credentials"
+
+pipeline {
+    agent {
+        label 'dev-agent'
+    }
+
+    environment {
+        ENV_FOR_DEPLOY = "dev"
+        DOCKER_TAG = "${ENV_FOR_DEPLOY}-${currentBuild.number}"
+        PROJECT = "swish-frontend"
+        BRANCH = "swish-dev"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                cleanWs()
+                checkout([$class: 'GitSCM',
+                    branches: [[name: "${branch}"]],
+                    doGenerateSubmoduleConfigurations: false,
+                    gitTool: 'Default',
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[credentialsId: "${credentialID}",
+                    url: "${gitUrl}"]]
+                ])
+            }
+        }
+
+        stage("Build Docker Images") {
+            steps {
+                sh "echo Build Docker Images... "
+                sh "docker build --no-cache -t ${PROJECT}:${DOCKER_TAG} ."
+            }
+        }
+
+        stage('Pushing to ECR') {
+            steps {
+                script {
+                    sh 'aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 310474177525.dkr.ecr.us-east-2.amazonaws.com'
+                    sh 'docker tag ${PROJECT}:${DOCKER_TAG} 310474177525.dkr.ecr.us-east-2.amazonaws.com/frontend-dev:${DOCKER_TAG}'
+                    sh 'docker push 310474177525.dkr.ecr.us-east-2.amazonaws.com/frontend-dev:${DOCKER_TAG}'
+                    sh "docker system prune -af"
+                }
+            }
+        }
+
+        stage('Deploy') {
+            agent {
+                node {
+                    label 'dev-agent'
+                    customWorkspace '/home/ubuntu/swish-frontend-dev'
+                }
+            }
+
+            steps {
+                sh ''' export version=$(cat docker-compose.yaml | grep -m1 "310474177525.dkr.ecr.us-east-2.amazonaws.com/frontend-dev:" | awk '{print $2}' | cut -d ":" -f2) && sed -i "s/frontend-dev:$version/frontend-dev:${DOCKER_TAG}/" docker-compose.yaml '''
+                sh "cat docker-compose.yaml"
+                sh 'docker-compose up -d '
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                snsPublish(awsCredentialsID, snsTopicArn, 'Jenkins Job Success', 'The Jenkins job has successfully completed.')
+            }
+        }
+
+        failure {
+            script {
+                snsPublish(awsCredentialsID, snsTopicArn, 'Jenkins Job Failure', 'The Jenkins job has failed.')
+            }
+        }
+    }
+}
+
+def snsPublish(credentialsId, topicArn, subject, message) {
+    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: credentialsId]]) {
+        sh "aws sns publish --topic-arn ${topicArn} --subject '${subject}' --message '${message}'"
+    }
+}

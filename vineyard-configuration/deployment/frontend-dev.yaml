@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf
+data:
+  nginx.conf: |
+    worker_processes  5;
+ 
+    events {
+      worker_connections  1024;
+    }
+    
+    http {
+        server_names_hash_bucket_size 128;
+        # include /etc/nginx/conf.d/*.conf;
+        include /etc/nginx/mime.types;
+        gzip               on;
+        gzip_http_version  1.0;
+        gzip_comp_level    2;
+        gzip_proxied       any;
+        gzip_types         text/plain application/javascript  text/css application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+        server {
+    
+        listen 80 default_server;
+    
+        root  /usr/share/nginx/combination-portals;
+        location ~ ^/*((?!(static|(.*\..*))).)+$  {
+            # root  /usr/share/nginx;
+            try_files /index.html =404;
+        }
+        }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-dev
+spec:
+  replicas: 1
+  # strategy:
+  #   type: RollingUpdate
+  #   rollingUpdate:
+  #     maxSurge: 1
+  #     maxUnavailable: 0
+  selector:
+    matchLabels:
+      name: frontend-dev
+  template:
+    metadata:
+      labels:
+        name: frontend-dev
+    spec:
+      containers:
+      - name: frontend-dev
+        image: us-ashburn-1.ocir.io/idapel7w8ikn/gotoro-vineyard-frontend:develop1-72
+        ports:
+          - containerPort: 80
+        volumeMounts:
+          - name: config-volume
+            mountPath: /etc/nginx/nginx.conf
+            subPath: nginx.conf
+        imagePullPolicy: "Always"
+      volumes:
+      - name: config-volume
+        configMap:
+          name: nginx-conf
+      imagePullSecrets:
+      - name: ocirsecret

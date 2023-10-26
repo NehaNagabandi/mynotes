@@ -1,0 +1,409 @@
+<response>
+   <lst name="responseHeader">
+      <int name="status">0</int>
+      <int name="QTime">0</int>
+   </lst>
+   <lst name="config">
+      <int name="znodeVersion">0</int>
+      <str name="luceneMatchVersion">9.3.0</str>
+      <lst name="updateHandler">
+         <lst name="commitWithin">
+            <bool name="softCommit">true</bool>
+         </lst>
+         <lst name="autoCommit">
+            <bool name="openSearcher">false</bool>
+            <int name="maxTime">15000</int>
+            <int name="maxDocs">-1</int>
+         </lst>
+         <lst name="autoSoftCommit">
+            <int name="maxDocs">-1</int>
+            <int name="maxTime">-1</int>
+         </lst>
+      </lst>
+      <lst name="query">
+         <bool name="useFilterForSortedQuery">false</bool>
+         <int name="queryResultWindowSize">20</int>
+         <int name="queryResultMaxDocsCached">200</int>
+         <bool name="enableLazyFieldLoading">true</bool>
+         <int name="maxBooleanClauses">1024</int>
+         <lst name="filterCache">
+            <str name="autowarmCount">0</str>
+            <str name="name">filterCache</str>
+            <str name="size">512</str>
+            <str name="initialSize">512</str>
+         </lst>
+         <lst name="queryResultCache">
+            <str name="autowarmCount">0</str>
+            <str name="name">queryResultCache</str>
+            <str name="size">512</str>
+            <str name="initialSize">512</str>
+         </lst>
+         <lst name="documentCache">
+            <str name="autowarmCount">0</str>
+            <str name="name">documentCache</str>
+            <str name="size">512</str>
+            <str name="initialSize">512</str>
+         </lst>
+         <lst name="fieldValueCache">
+            <str name="name">fieldValueCache</str>
+            <str name="size">10000</str>
+            <str name="initialSize">10</str>
+         </lst>
+      </lst>
+      <lst name="requestHandler">
+         <lst name="/select">
+            <str name="name">/select</str>
+            <str name="class">solr.SearchHandler</str>
+            <lst name="defaults">
+               <int name="rows">10</int>
+               <str name="echoParams">explicit</str>
+            </lst>
+         </lst>
+         <lst name="/query">
+            <str name="name">/query</str>
+            <str name="class">solr.SearchHandler</str>
+            <lst name="defaults">
+               <str name="echoParams">explicit</str>
+               <str name="wt">json</str>
+               <str name="indent">true</str>
+            </lst>
+         </lst>
+         <lst name="/spell">
+            <str name="startup">lazy</str>
+            <str name="name">/spell</str>
+            <str name="class">solr.SearchHandler</str>
+            <arr name="last-components">
+               <str>spellcheck</str>
+            </arr>
+            <lst name="defaults">
+               <str name="spellcheck.dictionary">default</str>
+               <str name="spellcheck">on</str>
+               <str name="spellcheck.extendedResults">true</str>
+               <str name="spellcheck.count">10</str>
+               <str name="spellcheck.alternativeTermCount">5</str>
+               <str name="spellcheck.maxResultsForSuggest">5</str>
+               <str name="spellcheck.collate">true</str>
+               <str name="spellcheck.collateExtendedResults">true</str>
+               <str name="spellcheck.maxCollationTries">10</str>
+               <str name="spellcheck.maxCollations">5</str>
+            </lst>
+         </lst>
+         <lst name="/update">
+            <str name="useParams">_UPDATE</str>
+            <str name="class">solr.UpdateRequestHandler</str>
+            <str name="name">/update</str>
+         </lst>
+         <lst name="/update/json">
+            <str name="useParams">_UPDATE_JSON</str>
+            <str name="class">solr.UpdateRequestHandler</str>
+            <lst name="invariants">
+               <str name="update.contentType">application/json</str>
+            </lst>
+            <str name="name">/update/json</str>
+         </lst>
+         <lst name="/update/csv">
+            <str name="useParams">_UPDATE_CSV</str>
+            <str name="class">solr.UpdateRequestHandler</str>
+            <lst name="invariants">
+               <str name="update.contentType">application/csv</str>
+            </lst>
+            <str name="name">/update/csv</str>
+         </lst>
+         <lst name="/update/json/docs">
+            <str name="useParams">_UPDATE_JSON_DOCS</str>
+            <str name="class">solr.UpdateRequestHandler</str>
+            <lst name="invariants">
+               <str name="update.contentType">application/json</str>
+               <str name="json.command">false</str>
+            </lst>
+            <str name="name">/update/json/docs</str>
+         </lst>
+         <lst name="update">
+            <str name="class">solr.V2UpdateRequestHandler</str>
+            <str name="useParams">_UPDATE_JSON_DOCS</str>
+            <str name="name">update</str>
+         </lst>
+         <lst name="/config">
+            <str name="useParams">_CONFIG</str>
+            <str name="class">solr.SolrConfigHandler</str>
+            <str name="name">/config</str>
+         </lst>
+         <lst name="/schema">
+            <str name="class">solr.SchemaHandler</str>
+            <str name="useParams">_SCHEMA</str>
+            <str name="name">/schema</str>
+         </lst>
+         <lst name="/replication">
+            <str name="class">solr.ReplicationHandler</str>
+            <str name="useParams">_REPLICATION</str>
+            <str name="name">/replication</str>
+         </lst>
+         <lst name="/get">
+            <str name="class">solr.RealTimeGetHandler</str>
+            <str name="useParams">_GET</str>
+            <lst name="defaults">
+               <bool name="omitHeader">true</bool>
+            </lst>
+            <str name="name">/get</str>
+         </lst>
+         <lst name="/admin/ping">
+            <str name="class">solr.PingRequestHandler</str>
+            <str name="useParams">_ADMIN_PING</str>
+            <lst name="invariants">
+               <str name="echoParams">all</str>
+               <str name="q">{!lucene}*:*</str>
+            </lst>
+            <str name="name">/admin/ping</str>
+         </lst>
+         <lst name="/admin/segments">
+            <str name="class">solr.SegmentsInfoRequestHandler</str>
+            <str name="useParams">_ADMIN_SEGMENTS</str>
+            <str name="name">/admin/segments</str>
+         </lst>
+         <lst name="/admin/luke">
+            <str name="class">solr.LukeRequestHandler</str>
+            <str name="useParams">_ADMIN_LUKE</str>
+            <str name="name">/admin/luke</str>
+         </lst>
+         <lst name="/admin/system">
+            <str name="class">solr.SystemInfoHandler</str>
+            <str name="useParams">_ADMIN_SYSTEM</str>
+            <str name="name">/admin/system</str>
+         </lst>
+         <lst name="/admin/mbeans">
+            <str name="class">solr.SolrInfoMBeanHandler</str>
+            <str name="useParams">_ADMIN_MBEANS</str>
+            <str name="name">/admin/mbeans</str>
+         </lst>
+         <lst name="/admin/plugins">
+            <str name="class">solr.PluginInfoHandler</str>
+            <str name="name">/admin/plugins</str>
+         </lst>
+         <lst name="/admin/file">
+            <str name="class">solr.ShowFileRequestHandler</str>
+            <str name="useParams">_ADMIN_FILE</str>
+            <str name="name">/admin/file</str>
+         </lst>
+         <lst name="/export">
+            <str name="class">solr.ExportHandler</str>
+            <str name="useParams">_EXPORT</str>
+            <arr name="components">
+               <str>query</str>
+            </arr>
+            <lst name="invariants">
+               <str name="rq">{!xport}</str>
+               <bool name="distrib">false</bool>
+            </lst>
+            <str name="name">/export</str>
+         </lst>
+         <lst name="/graph">
+            <str name="class">solr.GraphHandler</str>
+            <str name="useParams">_ADMIN_GRAPH</str>
+            <lst name="invariants">
+               <str name="wt">graphml</str>
+               <bool name="distrib">false</bool>
+            </lst>
+            <str name="name">/graph</str>
+         </lst>
+         <lst name="/stream">
+            <str name="class">solr.StreamHandler</str>
+            <str name="useParams">_STREAM</str>
+            <lst name="invariants">
+               <bool name="distrib">false</bool>
+            </lst>
+            <str name="name">/stream</str>
+         </lst>
+         <lst name="/sql">
+            <str name="class">solr.SQLHandler</str>
+            <str name="startup">lazy</str>
+            <str name="useParams">_SQL</str>
+            <lst name="invariants">
+               <bool name="distrib">false</bool>
+            </lst>
+            <str name="name">/sql</str>
+         </lst>
+         <lst name="/terms">
+            <str name="class">solr.SearchHandler</str>
+            <str name="useParams">_TERMS</str>
+            <arr name="components">
+               <str>terms</str>
+            </arr>
+            <lst name="defaults">
+               <bool name="terms">true</bool>
+            </lst>
+            <str name="name">/terms</str>
+         </lst>
+         <lst name="/analysis/document">
+            <str name="class">solr.DocumentAnalysisRequestHandler</str>
+            <str name="startup">lazy</str>
+            <str name="useParams">_ANALYSIS_DOCUMENT</str>
+            <str name="name">/analysis/document</str>
+         </lst>
+         <lst name="/analysis/field">
+            <str name="class">solr.FieldAnalysisRequestHandler</str>
+            <str name="startup">lazy</str>
+            <str name="useParams">_ANALYSIS_FIELD</str>
+            <str name="name">/analysis/field</str>
+         </lst>
+         <lst name="/debug/dump">
+            <str name="class">solr.DumpRequestHandler</str>
+            <str name="useParams">_DEBUG_DUMP</str>
+            <lst name="defaults">
+               <str name="echoParams">explicit</str>
+               <bool name="echoHandler">true</bool>
+            </lst>
+            <str name="name">/debug/dump</str>
+         </lst>
+         <lst name="/tasks/cancel">
+            <str name="class">solr.QueryCancellationHandler</str>
+            <str name="useParams">_TASK_CANCELLATION</str>
+            <arr name="components">
+               <str>querycancellation</str>
+            </arr>
+            <str name="name">/tasks/cancel</str>
+         </lst>
+         <lst name="/tasks/list">
+            <str name="class">solr.ActiveTasksListHandler</str>
+            <str name="useParams">_LIST_TASKS</str>
+            <arr name="components">
+               <str>activetaskslist</str>
+            </arr>
+            <str name="name">/tasks/list</str>
+         </lst>
+      </lst>
+      <requestHandler name="/dataimport" class="org.apache.solr.handler.dataimport.DataImportHandler">
+         <lst name="defaults">
+            <str name="config">data-config.xml</str>
+         </lst>
+      </requestHandler>
+      <lst name="searchComponent">
+         <lst name="spellcheck">
+            <str name="name">spellcheck</str>
+            <str name="class">solr.SpellCheckComponent</str>
+            <lst name="spellchecker">
+               <int name="maxEdits">2</int>
+               <int name="minPrefix">1</int>
+               <int name="maxInspections">5</int>
+               <int name="minQueryLength">4</int>
+               <float name="accuracy">0.5</float>
+               <float name="maxQueryFrequency">0.01</float>
+               <str name="name">default</str>
+               <str name="field">_text_</str>
+               <str name="classname">solr.DirectSolrSpellChecker</str>
+               <str name="distanceMeasure">internal</str>
+            </lst>
+            <str name="queryAnalyzerFieldType">text_general</str>
+         </lst>
+      </lst>
+      <lst name="updateProcessor">
+         <lst name="uuid">
+            <str name="name">uuid</str>
+            <str name="class">solr.UUIDUpdateProcessorFactory</str>
+         </lst>
+         <lst name="remove-blank">
+            <str name="name">remove-blank</str>
+            <str name="class">solr.RemoveBlankFieldUpdateProcessorFactory</str>
+         </lst>
+         <lst name="field-name-mutating">
+            <str name="name">field-name-mutating</str>
+            <str name="class">solr.FieldNameMutatingUpdateProcessorFactory</str>
+            <str name="pattern">[^\w-\.]</str>
+            <str name="replacement">_</str>
+         </lst>
+         <lst name="parse-boolean">
+            <str name="name">parse-boolean</str>
+            <str name="class">solr.ParseBooleanFieldUpdateProcessorFactory</str>
+         </lst>
+         <lst name="parse-long">
+            <str name="name">parse-long</str>
+            <str name="class">solr.ParseLongFieldUpdateProcessorFactory</str>
+         </lst>
+         <lst name="parse-double">
+            <str name="name">parse-double</str>
+            <str name="class">solr.ParseDoubleFieldUpdateProcessorFactory</str>
+         </lst>
+         <lst name="parse-date">
+            <str name="name">parse-date</str>
+            <str name="class">solr.ParseDateFieldUpdateProcessorFactory</str>
+         </lst>
+         <lst name="add-schema-fields">
+            <str name="name">add-schema-fields</str>
+            <str name="class">solr.AddSchemaFieldsUpdateProcessorFactory</str>
+         </lst>
+      </lst>
+      <arr name="initParams">
+         <lst>
+            <str name="path">/update/**,/query,/select,/spell</str>
+            <lst name="defaults">
+               <str name="df">_text_</str>
+            </lst>
+         </lst>
+      </arr>
+      <arr name="listener">
+         <lst>
+            <str name="event">newSearcher</str>
+            <str name="class">solr.QuerySenderListener</str>
+            <arr name="queries" />
+         </lst>
+         <lst>
+            <str name="event">firstSearcher</str>
+            <str name="class">solr.QuerySenderListener</str>
+            <arr name="queries" />
+         </lst>
+      </arr>
+      <lst name="directoryFactory">
+         <str name="name">DirectoryFactory</str>
+         <str name="class">solr.NRTCachingDirectoryFactory</str>
+      </lst>
+      <lst name="codecFactory">
+         <str name="class">solr.SchemaCodecFactory</str>
+      </lst>
+      <arr name="updateRequestProcessorChain">
+         <lst>
+            <str name="default">true</str>
+            <str name="name">add-unknown-fields-to-the-schema</str>
+            <str name="processor">uuid,remove-blank,field-name-mutating,parse-boolean,parse-long,parse-double,parse-date,add-schema-fields</str>
+            <arr>
+               <lst>
+                  <str name="class">solr.LogUpdateProcessorFactory</str>
+               </lst>
+               <lst>
+                  <str name="class">solr.DistributedUpdateProcessorFactory</str>
+               </lst>
+               <lst>
+                  <str name="class">solr.RunUpdateProcessorFactory</str>
+               </lst>
+            </arr>
+         </lst>
+      </arr>
+      <lst name="updateHandlerupdateLog">
+         <int name="numVersionBuckets">65536</int>
+         <str name="dir" />
+      </lst>
+      <lst name="requestDispatcher">
+         <bool name="handleSelect">false</bool>
+         <lst name="httpCaching">
+            <bool name="never304">true</bool>
+            <str name="etagSeed">Solr</str>
+            <str name="lastModFrom">opentime</str>
+            <null name="cacheControl" />
+         </lst>
+         <lst name="requestParsers">
+            <int name="formUploadLimitKB">2147483647</int>
+            <bool name="addHttpRequestToContext">false</bool>
+            <int name="multipartUploadLimitKB">2147483647</int>
+         </lst>
+      </lst>
+      <lst name="indexConfig">
+         <bool name="useCompoundFile">false</bool>
+         <int name="maxBufferedDocs">-1</int>
+         <double name="ramBufferSizeMB">100.0</double>
+         <int name="ramPerThreadHardLimitMB">-1</int>
+         <int name="maxCommitMergeWaitTime">-1</int>
+         <int name="writeLockTimeout">-1</int>
+         <str name="lockType">native</str>
+         <bool name="infoStreamEnabled">false</bool>
+         <lst name="metrics" />
+      </lst>
+   </lst>
+</response>

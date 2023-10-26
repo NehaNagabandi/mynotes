@@ -1,0 +1,19 @@
+apiVersion: kafka.strimzi.io/v1beta1
+kind: KafkaConnector
+metadata:
+  name: mysql-source-connector
+  labels:
+    strimzi.io/cluster: kafka
+spec:
+  class: io.debezium.connector.mysql.MySqlConnector
+  tasksMax: 1
+  config:
+    database.hostname: 10.0.11.35
+    database.port: "3306"
+    database.user: vineyard1
+    database.password: Fpt@2023
+    database.server.id: 1169485254
+    database.include.list: vineyard-local
+    table.include.list: vineyard-local.your_table_1, inventory.your_table_2
+    database.history.kafka.bootstrap.servers: kafka:9092
+    database.history.kafka.topic: schema-changes.inventory

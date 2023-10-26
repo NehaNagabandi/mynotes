@@ -1,0 +1,13 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: my-connect-cluster
+spec:
+  version: 2.8.1
+  replicas: 1
+  bootstrapServers: my-cluster-kafka-bootstrap:9092
+  image: us-ashburn-1.ocir.io/idapel7w8ikn/connector:0.1
+  template:
+    pod:
+      imagePullSecrets:
+        - name: ocirsecret

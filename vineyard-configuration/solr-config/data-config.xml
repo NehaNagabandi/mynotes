@@ -1,0 +1,8 @@
+<dataConfig>
+  <dataSource type="JdbcDataSource" driver="com.mysql.jdbc.Driver" url="jdbc:mysql://10.0.11.35:3306/vineyard-local" user="vineyard1" password="Fpt@2023" />
+  <document>
+    <entity name="my_entity" query="SELECT * FROM job">
+      <field column="id" name="id" />
+    </entity>
+  </document>
+</dataConfig>

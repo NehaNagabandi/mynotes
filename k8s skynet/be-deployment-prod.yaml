@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-prod
+spec:
+  replicas: 1
+  # strategy:
+  #   type: RollingUpdate
+  #   rollingUpdate:
+  #     maxSurge: 1
+  #     maxUnavailable: 0
+  selector:
+    matchLabels:
+      name: backend-prod
+  template:
+    metadata:
+      labels:
+        name: backend-prod
+    spec:
+      containers:
+      - name: backend-prod
+        image: us-ashburn-1.ocir.io/idapel7w8ikn/gotoro-backend:dev-1516
+        ports:
+          - containerPort: 80
+      #   volumeMounts:
+      #     - name: config-oci
+      #       mountPath: /home/app/config
+      #       subPath: config
+      #   imagePullPolicy: "Always"
+      # volumes:
+      # - name: config-oci
+      #   configMap:
+      #     name: backend-conf
+      imagePullSecrets:
+      - name: ocisecret

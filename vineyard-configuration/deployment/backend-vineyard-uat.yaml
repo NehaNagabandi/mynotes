@@ -1,0 +1,185 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-conf
+data:
+  config: |
+    [DEFAULT]
+    user=ocid1.user.oc1..aaaaaaaae67dsgcsj5mnjslugmn5jqcewj3zevl5bb4rnymzaffqr5r6gpra
+    fingerprint=73:f3:44:3f:67:52:b6:c9:cb:91:d7:5f:a6:b6:01:c7
+    tenancy=ocid1.tenancy.oc1..aaaaaaaax6mlhmhxl5r2ljr7uoggl3a6smbat7usfgglzfbmv6ifrzdywfna
+    region=us-ashburn-1
+    key_file=/home/app/private-key.pem
+  private-key.pem : |
+    -----BEGIN PRIVATE KEY-----
+    MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDqiSCv220xFFvs
+    36pSsaIu5T85pWgIfdRvon3jzEq7a4AK/UEy2kjWPRmDzvKbNA5MlMSQhvz7dWpJ
+    K+gnlJIYzj4N+G0jhaaO4JRBoMavqJRVxIVEwAqan8HF4ekj6pznSeLVNbJbhCme
+    6VknCGfAXaeoYt9gQxuyoqq3nL4Ylv4Fl5hxvFIScEgOrk0NJuxvCaJykjOOjXsj
+    DzgYFAn6QkGRNfflpoy9j9wznkydlaAkmZ9KxwWLfykaKS0ZTDVyl8oo5EN1CfY7
+    cxZIVMUbO7dpVB1VPEtN24vTQUCTT9155BEP8pSFarGJZoPkOXicaD7tW6dmEwZc
+    xX5l/zNTAgMBAAECggEAG8PhHUCGVDWbTlcKNGD4GMIl8n6c6shuskqTybiBLl/j
+    GCn0In+J+Obh0uNYgDww5ysDfDKm12QGkaQDh1AE3a/o08GRtg9X8PkwQ/azHs9/
+    xAmQV1u+xaBdEb6VWZ2oNo9eLax+MWxbewcX+VF66uCLfRk7ZYt8R3EPcc46CPH5
+    Gc84nKZ/G7xoESrmUoOdri6Fuk+/OCHha7mPIlRDLe68LwjvUDX8G/qDmgrLkE/t
+    WoIn3+ODXrPK1N1P52shQML/vl7rlZXjQJRO5dyuVt722yxHc7C/eQA/b51LK5zX
+    +6sazSQIYv/clLT8MAd/oVUf2mfrypQ58Hiq8NOXiQKBgQD4j4xRlTLFtK4AFC4J
+    wA6HXDSytsusgD7i7bxjaujVq0XnGUit8eIFxv18FgZr2R/XyziQO+U4bd+TIGqQ
+    0eeb5Rz8MJqsbIDWxbKAGVUM08AX+T5WGzFxFimxKc/ZPqsEY15ZAFguL5UtWM6w
+    9dGyeCcncpv3NijUMW4APvZpSQKBgQDxjh7c0PwvQppHqaD2W28ik6AQMMwA/zEH
+    QMpUp8b+t2vPbj0YSc/ErvuUrS3XdYA0MuwCVjCz6oYLt4RH8ycjlCtqdUExpxlj
+    FiTpdcXaxmAyEV2KYgsk3OpQAB23WWUYsAArHDJUSQ5ukzuNzdUEykxvrU5jxK1R
+    T6JIAZDzuwKBgDmEFgcmzBndpknUYZbV/0apOnSEQfsHrgWa13X13izbNhC01BGU
+    ICYQFsXo3tGD649msg8GHROCsTJ9VMtwFvUG/j8JDDGL5gBMvPJRalHOievCO/92
+    yWkOpNUfBL6TdsVMLR/RKZZ+YjmdDC78oup2TTEenyKEQMxhJ8Ac0a4pAoGAfUiQ
+    G0lNMxnhOP/y2zPLLWzR3PPiKzYwcKmbB1NJs7zgbuKnT1yhJUr4c0FrAFASIYCz
+    xfZ8JiSiR5t0QXkMuLhV2E5edOlNEoZeuLN73h97rxwwnuCBFSp7YOjegMUd2TMX
+    s0RZmjuV/6XfgonaTTS7dkS13qsYlY6vBZfCXZcCgYEA1Gauy8BC+nc4I/MG0m3B
+    NmtYeSpH8ao7ws9JnSIVoM9a4xdjO+tbZjXBsZmm9WlPyoPxVsAwVzBIodt6sfxq
+    GWgzB+CY9TjPQ+TLD4NPhIcoCpLxEe7cY2Mt8viqCcKBmerFcbFqMQh1GC9mHKlt
+    PvlJKMEdb7LzXWTB1oY6xnw=
+    -----END PRIVATE KEY----- 
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      name: backend
+  template:
+    metadata:
+      labels:
+        name: backend
+    spec:
+      containers:
+      - name: backend
+        image: us-ashburn-1.ocir.io/idapel7w8ikn/vineyard-backend:develop1-108
+        ports:
+          - containerPort: 3000
+        volumeMounts:
+          - name: config-oci
+            mountPath: /home/app/config
+            subPath: config
+          - name: private-key
+            mountPath: /home/app/private-key.pem
+            subPath: private-key.pem
+        imagePullPolicy: "Always"
+        env:
+          - name: DB_HOST
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: db.host
+          - name: DB_PORT
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: db.port
+          - name: DB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: db.user
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: db.password
+          - name: DB_DATABASE
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: db.database
+          - name: HOST_SERVER
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: host.server
+          - name: PATH_CONFIG_OCI
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: path.config.oci
+          - name: PROFILE
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: profile
+          - name: namespace
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: namespace
+          - name: public_bucket
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: public.bucket
+          - name: private_bucket
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: private.bucket
+          - name: region
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: region
+          # - name: REDIS_URL
+          #   valueFrom:
+          #     secretKeyRef:
+          #       name: backend
+          #       key: redis.url
+          - name: CACHE_EXPIRE
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: cache.expire
+          - name: REDIS_HOST
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: redis.host
+          - name: REDIS_PORT
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: redis.port
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: redis.password
+          - name: TWILIO_PHONE_NUMBER
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: tiwllio.phone-number
+          - name: TWILIO_ACCOUNT_SID
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: tiwllio.accout-id
+          - name: TWILIO_AUTH_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: backend
+                key: tiwllio.auth-token
+      volumes:
+      - name: config-oci
+        configMap:
+          name: backend-conf
+      - name: private-key
+        configMap:
+          name: backend-conf
+      imagePullSecrets:
+      - name: ocirsecret
+

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service-prod
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+  selector:
+    name: frontend-prod

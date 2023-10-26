@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: debezium-mysql-connector
+data:
+  mysql-connector.json: |
+    {
+      "name": "mysql-source-connector",
+      "config": {
+        "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+        "database.hostname": "10.0.11.35",
+        "database.port": "3306",
+        "database.user": "vineyard1",
+        "database.password": "Fpt@2023",
+        "database.server.id": "1169485254",
+        "database.server.name": "mysql-server",
+        "database.whitelist": "vineyard-local",
+        "table.whitelist": "vineyard-local.access_role",
+        "database.history.kafka.bootstrap.servers": "my-cluster-kafka-bootstrap:9092",
+        "database.history.kafka.topic": "mysql-history"
+      }
+    }

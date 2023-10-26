@@ -1,0 +1,28 @@
+helm install --set auth.adminUsername=admin,auth.adminPassword=Fpt@2023,replicaCount=3 solr bitnami/solr -n=database
+
+helm install rabbit --set replicaCount=3 bitnami/rabbitmq -n=rabbit
+
+
+helm install --set auth.adminUsername=admin,auth.adminPassword=Fpt@2023,replicaCount=3 solr apache/solr
+
+helm install --set dbUser.user=admin,dbUser.password=Fpt@2023 cass bitnami/cassandra -n=database 
+
+helm install solr-v1 bitnami/solr --values values.yaml -n=database
+
+kubectl create configmap solr-custom-config --from-file=solrconfig.xml --from-file=data-config.xml -o yaml --dry-run=client > solr-config.yaml
+
+
+helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v1.11.0 --set installCRDs=true
+
+helm install nginx ingress-nginx/ingress-nginx
+
+helm install redis bitnami/redis -n database
+
+
+CREATE USER 'vineyard'@'%' IDENTIFIED WITH mysql_native_password BY 'Fpt@2023';
+GRANT ALL PRIVILEGES ON vineyard.* TO 'vineyard'@'%';
+
+kubectl create secret docker-registry ocirsecret --docker-server=us-ashburn-1.ocir.io --docker-username='idapel7w8ikn/trongkd@fsoft.com.vn' --docker-password='9>br(u5KwLZHu:NZysE3' --docker-email='trongkd@fsoft.com.vn'
+
+//install kafka
+kubectl create -f 'https://strimzi.io/install/latest?namespace=kafka' -n kafka

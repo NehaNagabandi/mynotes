@@ -1,0 +1,17 @@
+bastion IP : 150.136.245.180 port 443,username: opc, 
+Key: dev-user.pem
+
+
+demo server: 10.0.13.113 port 22, username: ubuntu
+Key name : Gotoro-Application-Key.cer ( store at bastion server)
+path docker config : /home/ubuntu/gotoro-demo
+
+
+Connect to Jenkins VM with host is 10.0.13.63, Username is ubuntu and key: Gotoro-Application-Key.cer(stored at bastion server)
+
+Connect to Prod Application VM with host is 10.1.11.218, Username is ubuntu  
+Key: application-production.pem (stored in jenkins VM root folder)
+
+Check status application 
+as root user: docker ps (in prod-vm)
+For logs check: docker logs gotoro-backend-prod
