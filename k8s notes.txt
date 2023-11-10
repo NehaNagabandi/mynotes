@@ -1,0 +1,504 @@
+masternode:
+ 
+etcd : manage cluster
+kubeapi server : manage orchestrating all the operations within the cluster
+controller : manages like node-controller, replication-controller...
+kube-scheduler : schedule application
+
+workernode:
+
+kubelet : from kubeapi-server it will take all the instructions and manages containers
+kube-proxy : enable the communication between services with in the clsuter
+
+------------------------------------------------------------------------------------ 
+
+pod yaml:
+
+apiVersion:
+kind: DERVIDE
+metadata:
+name:
+lables:
+    app:
+    type: 
+spec:
+    containers:
+        -name:
+         image:
+
+kubetcl create -f pod.yaml
+kubectl get pods
+kubectl describe pod/<pod-id>
+------------------------------------------------------------------------------------
+
+ 
+
+apiVerions--
+pod : v1
+servcie: v1
+ReplicationController: v1
+Replicaset: apps/v1
+deployment: apps:v1
+
+ 
+
+------------------------------------------------------------------------------------
+kind: --- refers to the kind of object (pod,deployment,service.... )
+
+ 
+
+metadata: data about the object ...like name,lables of the object
+------------------------------------------------------------------------------------
+apiVerions: apps/v1
+kind: Deployment
+metadata:
+  name: fe-deploymnet
+  labels: 
+       name: fe-app     
+       type: fe
+spec:
+    template:
+         metadata:
+            name: fe-pod
+            labels: 
+                name: fe-app     
+                type: fe
+
+         spec:
+            container: 
+            -name: 
+            image: 
+    replicas: 3
+    selector:
+       Matchlabels:
+            type: fe
+
+---
+apiVerions: apps/v1
+kind: Deployment
+metadata:
+  name: be-deploymnet
+  labels: 
+       name: be-app     
+       type: be
+spec:
+    template:
+         metadata:
+            name: be-pod
+            labels: 
+                name: be-app     
+                type: be
+
+         spec:
+            container: 
+            -name: 
+            image: 
+    replicas:
+    selector:
+       Matchlabels:
+            type: be
+------------------------------------------------------------------------------------
+kubectl create deployment --image=nginx nginx --dry-run=client -o yaml > nginx-deployment.yaml
+
+ 
+kubectl create deployment --image=nginx nginx --replicas=4 --dry-run=client -o yaml > nginx-deployment.yaml
+
+-------------------------------------------------------------------------------------
+
+service:
+------
+
+clusterIp (default):
+	this will create a virtual IP side the cluster which 
+	
+apiVersion:v1
+kind: service
+metadata:
+	name: fe-service
+spec:
+	selector:
+		labels: 
+		   name: fe-pod     
+		   type: fe
+		   
+    type: clusterIp
+	-port:
+		targetPort: 
+		port:
+		NodePort: 
+		
+NodePort : 
+   Service listening to the port on the node i.e NodePort and forword request to the port on the pod i.e target port where the web app is running 
+
+apiVersion:v1
+kind: service
+metadata:
+	name: fe-service
+spec:
+	selector:
+		labels: 
+		   name: fe-pod     
+		   type: fe
+		   
+    type: NodePort
+	-port:
+		targetPort: 
+		port:
+		NodePort: 
+
+loadbalancer:
+	it provisions a load balancer for an web app in supported cloud providers 
+	ex. it distributes load on web app across the different web server. 
+apiVersion:v1
+kind: service
+metadata:
+	name: fe-service
+spec:
+	selector:
+		labels: 
+		   name: fe-pod     
+		   type: fe
+		   
+    type: loadbalancer
+	-port:
+		targetPort: 
+		port:
+		NodePort: 	
+
+
+-------------------------------------------------------------------------------------------
+
+
+namespace:
+---------
+
+kubectl get pods --namepace=dev
+
+kubcetl config set-context $(kubectl config current-context) --namespace=dev
+
+
+to limit the resource from the utilization in a namespace , we can define the resource quota 
+
+dev-quota.yaml:
+
+apiVerion: v1
+kind: ResoureQuota
+matadata:
+	name: dev-quota	
+	namespace: dev
+spec:
+	hard:
+		pods: "10"
+		requests.cpu: "4"
+		request.memory: 5Gi
+		limits.cpu: "10"
+		limits.memory: 10Gi
+
+
+
+-------------------------------------------------------------------------------------------------
+
+imperative approches:
+--------------------
+
+k run --image=nginx nginx
+k create deployment --image=nginx nginx
+k expose deployment nginx --port 80
+k edit deployment nginx
+k scale deployment nginx --replicas=5
+k set image deployment nginx nginx=nginx:1.0
+k create -f nginx.yaml
+k replace -f nginx.yaml
+k delete -f nginx.yaml
+
+declarative approches:
+---------------------
+k apply -f nginx.yaml
+
+kubectl run nginx --image=nginx --dry-run=client -o yaml
+kubectl create deployment --image=nginx nginx --dry-run=client -o yaml
+kubectl scale deployment nginx --replicas=4
+kubectl create deployment nginx --image=nginx --dry-run=client -o yaml > nginx-deployment.yaml
+kubectl expose pod redis --port=6379 --name redis-service --dry-run=client -o yaml (Create a Service named redis-service of type ClusterIP to expose pod redis on port 6379)
+kubectl create service clusterip redis --tcp=6379:6379 --dry-run=client -o yaml (This will not use the pods labels as selectors, instead it will assume selectors as app=redis.)
+kubectl create service nodeport nginx --tcp=80:80 --node-port=30080 --dry-run=client -o yaml
+
+
+---------------------------------------------------------------------------------------------------------------------------------------
+ 
+scheduler
+
+
+manual scheduler:
+	when there is no scheduler.. if we want to assign a pod to node ... we can manual schedule i.e nodeName property 
+	specify the nodeName on to the manifest file so that pods wont be in pending state.(this can be done only while pod creation time)
+    if pod is already exsist and needs to attach to node? then binding object comes into picture.	
+	--- is to create a binding object and send a POST request to the pods binding api with the data set to the binding object in a json format. 
+	
+apiVersion:
+kind:
+metadata:
+	name:nginx
+target:
+	apiVerion: v1
+	kind: Node
+	name: <node-name to which pod need to attach node>
+	
+
+
+-----------------------------------------------------------------------------------------------------------
+lables & selector:
+------------------
+filtering the objects based on the criteria like class, kind, functions. 
+in genral grouping objects together based on the lables .
+
+apiVerion: v1
+kind: Replicaset
+metadata:
+	lables:                                ---- lables for object replicaset
+		name: replicas                 
+		type: fe-replicas
+spec:
+	template:
+		lables                             ---- lables for object to which pod replicas has to attched.
+		   name: fe-pod     
+		   type: fe	
+	replicas: 3
+	selectors:
+		matchlables:                       ---- to connect the replica set to the pod lable must match the above pod lable which we mentioned. we configure the selector field under the replicaset to match the lables defined on the pod.
+			name: fe-pod
+			type:fe
+		
+
+taints & tolarants: 
+-------------------
+taint to nodes:
+kubectl taint nodes <node-name> key=value:taint-effect
+k taint nodes node1 app=blue:NoSchedule
+
+taint-effects 3 types:
+NoSchedule
+PreferNoschedule
+NoExecute
+
+tolerations for pods:
+
+apiVerion: v1
+kind: Pod
+metadata:
+	name: pod1
+spec:
+ containers:
+ - name: nginx
+   image: nginx
+ tolerations:
+ - key: "app"
+   operator: "Equal"
+   value: "blue"
+   effect: NoSchedule
+
+
+
+----------------------------------------------------------------------------------------------------------
+node selector:
+-------------
+
+lable a node:
+k label nodes <node-name> lable-key>=<lable-value>
+k label nodes node01 size=large
+
+apiVerion: v1
+kind: Pod
+metadata:
+	name: pod1
+spec:
+ containers:
+ - name: nginx
+   image: nginx
+ nodeSelector:
+   size: large
+   
+Label a node as define the nodeSelector in the manifest file ... as simple as selecting a node using above example 
+but what if the requiremnt is complex like select a node which is large or medium .. which is not small ... ? ans: Node Affinity
+
+
+Node Affinity:
+--------------
+
+apiVerion: v1
+kind: Pod
+metadata:
+	name: pod1
+spec:
+ containers:
+ - name: nginx
+   image: nginx
+ affinity:
+   nodeAffinity:
+	 requiredDuringSchedulingIgnoredDuringExecution:
+	   nodeSeletcorTerms:
+	   - matchExpressions:
+	     - key: size 
+		   operator: In
+		   values:
+		   - large
+		   - medium 
+---
+		   
+apiVerion: v1
+kind: Pod
+metadata:
+	name: pod1
+spec:
+ containers:
+ - name: nginx
+   image: nginx
+ affinity:
+   nodeAffinity:
+	 requiredDuringSchedulingIgnoredDuringExecution:
+	   nodeSeletcorTerms:
+	   - matchExpressions:
+	     - key: size 
+		   operator: NotIn
+		   values:
+		   - small 	   
+		   
+		   
+		   
+		   
+		   
+types of affinity:
+
+- requiredDuringSchedulingIgnoredDuringExecution
+- prefferedDuringSchedulingIgnoredDuringExecution 
+
+-------------------------------------------------------------------------------------------------------------
+resource limits:
+----------------
+
+-> requests
+-> limits
+
+resources:
+	requests:
+		memory:
+		cpu:
+	limits:
+		memory:
+		cpu:
+
+1G - gigabyte
+1M - megabyte
+1K - kilobyte
+1Gi - gibibyte
+1Mi - mebibyte
+1Ki - kibibyte
+
+
+Limit Ranges:( this will apply ranges in namespace level)
+
+limit ranage for cpu:
+--------------------
+apiVerion: v1
+kiind:LimitRange
+metadata:
+	name: cpu-resource-constraint
+spec:
+	limits;
+	- default:
+		cpu: 500m                           --limit
+	  defaultRequest:
+		cpu: 500m                           --request
+	  max:
+		cpu: "1"                            --limit
+	  min:
+	    cpu: 100m                           --request
+      type: Container
+	  
+	  
+limit range for memory:
+----------------------
+apiVerion: v1
+kiind:LimitRange
+metadata:
+	name: memory-resource-constraint
+spec:
+	limits;
+	- default:
+		memory: 1Gi                           --limit
+	  defaultRequest:
+		memory: 1Gi                           --request
+	  max:
+		memory: 1Gi                           --limit
+	  min:
+	    memory: 500Mi		                  --request
+      type: Container
+ 
+resource quotas: (this resource quota limits the total requested cpu)
+---------------
+
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+	name: my-resource-quota
+spec:
+	hard:
+		requests.cpu: 4
+		requests.memory: 4Gi
+		limits.cpu: 10
+		limits.memory: 10Gi
+		
+		
+		
+---------------------------------------------------------------------------------------------------- 
+
+
+DaemonSet:
+---------
+schedules a pod on each node 
+example monitoring pod that need to monitor the each node in the cluser .. we can define daemonsets to schedule the monitoring pod on each node created.
+
+we can define daemonsets just like a replicasets
+
+apiVerion: apps/v1
+kind: DaemonSet
+metadata:
+	name: daemonset1
+spec:
+
+	template:
+		metadata:
+			labels:
+				name: monitoring-agent
+	    spec:
+			containers:
+				- name: monitoring-agent-con
+				  image: monitoring-agent
+				
+	selector:
+		matchlables:
+		name: monitoring-agent	                             ---- this matchlabel for which pod this deamonset need to schedule on all the nodes.
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+monitoring:
+
+install a metric-service
+----------
+k top nodes
+k top pods
+ 
+--------------------------------------------------------------------------------------
+rolling updates and rollbacks: 
+-----------------------------
+
+-> recreate (example if we have 3 pods for application running .. delete all the pods of application and up the newer version)
+-> rolling update( ex: down one of the pod and up the newer one by one.. in this way the application will never be down while update process)
+    this is the default deployment rolling update strategy
+	
+	
+to rollbacks:
+------------
+k rollout undo deployment/<deployment-name>
+
