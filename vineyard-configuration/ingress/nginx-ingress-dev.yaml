@@ -8,10 +8,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - dev.vineyard.work
+    - dev.vineyard
     secretName: letsencrypt-nginx
   rules:
-  - host: dev.vineyard.work
+  - host: dev.vineyar
     http:
       paths:
       - pathType: Prefix
